@@ -1,13 +1,91 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { @apply border-dark-200; }
+  body {
+    @apply bg-dark-50 text-dark-900 font-sans antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  h1, h2, h3 { @apply font-display tracking-tight; }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700
+           text-white font-semibold rounded-lg transition-colors duration-200
+           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-dark-800 hover:bg-dark-700
+           text-white font-semibold rounded-lg transition-colors duration-200;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-4 py-2 text-dark-700 hover:bg-dark-100
+           font-medium rounded-lg transition-colors duration-200;
+  }
+  .card {
+    @apply bg-white rounded-xl border border-dark-200 shadow-sm;
+  }
+  .badge-live {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-red-600 text-white
+           text-xs font-bold rounded-full uppercase tracking-wide;
+  }
+  .badge-category {
+    @apply inline-flex items-center px-2.5 py-0.5 bg-brand-100 text-brand-700
+           text-xs font-semibold rounded-full;
+  }
+  .section-title {
+    @apply text-xl font-display font-semibold text-dark-900 border-l-4 border-brand-500 pl-3;
+  }
+  .ad-placeholder {
+    @apply flex flex-col items-center justify-center bg-dark-100 border-2
+           border-dashed border-dark-300 rounded-lg text-dark-400 text-sm font-medium;
+  }
+  .news-thumb {
+    @apply w-full h-full object-cover transition-transform duration-300 group-hover:scale-105;
+  }
+}
+
+@layer utilities {
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.dark.300') transparent;
+  }
+}
+
+/* Ticker animation */
+.ticker-wrap {
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ticker-content {
+  display: inline-block;
+  animation: ticker 40s linear infinite;
+}
+.ticker-content:hover { animation-play-state: paused; }
+
+/* Live pulse dot */
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  animation: pulse-live 1.5s ease-in-out infinite;
+  display: inline-block;
 }
