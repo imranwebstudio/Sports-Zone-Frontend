@@ -52,20 +52,20 @@ export default function HomePage() {
   return (
     <>
       <Helmet>
-        <title>Live Football Arena — Live Scores, Sports News & Match Coverage</title>
+        <title>SportsZone — Live Scores, Sports News & Match Coverage</title>
         <meta name="description" content="Get live football scores, breaking sports news, match coverage, and live stream channels. Your #1 sports hub for FIFA World Cup, Premier League, and more." />
-        <meta property="og:title" content="Live Football Arena — Live Scores & Sports News" />
+        <meta property="og:title" content="SportsZone — Live Scores & Sports News" />
         <meta property="og:description" content="Live football scores, sports news and match coverage." />
         <meta property="og:type" content="website" />
-        <link rel="canonical" href="https://Live Football Arena.com/" />
+        <link rel="canonical" href="https://sportszone.com/" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          "name": "Live Football Arena",
-          "url": "https://Live Football Arena.com",
+          "name": "SportsZone",
+          "url": "https://sportszone.com",
           "potentialAction": {
             "@type": "SearchAction",
-            "target": "https://Live Football Arena.com/search?q={search_term_string}",
+            "target": "https://sportszone.com/search?q={search_term_string}",
             "query-input": "required name=search_term_string"
           }
         })}</script>

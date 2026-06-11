@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
 
   return (
     <>
-      <Helmet><title>Admin Login | Live Football Arena</title></Helmet>
+      <Helmet><title>Admin Login | SportsZone</title></Helmet>
       <div className="min-h-screen bg-dark-900 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
               <span className="text-white font-display font-bold text-2xl">SZ</span>
             </div>
             <h1 className="text-2xl font-display font-bold text-white">Admin Login</h1>
-            <p className="text-dark-400 mt-1">Live Football Arena Management Portal</p>
+            <p className="text-dark-400 mt-1">SportsZone Management Portal</p>
           </div>
 
           <div className="card p-8 bg-dark-800 border-dark-700">
@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="admin@Live Football Arena.com"
+                  placeholder="admin@sportszone.com"
                   className="w-full px-4 py-2.5 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:border-brand-500"
                 />
               </div>
@@ -80,7 +80,7 @@ export default function AdminLoginPage() {
           </div>
 
           <p className="text-center text-dark-500 text-xs mt-4">
-            Default: admin@Live Football Arena.com / Admin@1234
+            Default: admin@sportszone.com / Admin@1234
           </p>
         </div>
       </div>

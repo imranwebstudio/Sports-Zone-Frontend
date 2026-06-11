@@ -33,7 +33,7 @@ export default function Footer() {
             </Link>
             <p className="text-sm leading-relaxed mb-4">
               Your ultimate destination for live sports scores, news, and match coverage.
-              Stay ahead of the game with Live Football Arena.
+              Stay ahead of the game with SportsZone.
             </p>
             <div className="flex items-center gap-3">
               {[
@@ -106,10 +106,10 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-dark-700 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-          <p>© {new Date().getFullYear()} Live Football Arena. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} SportsZone. All rights reserved.</p>
           <p>
             Powered by{' '}
-            <span className="text-brand-400 font-medium">Live Football Arena Platform</span>
+            <span className="text-brand-400 font-medium">SportsZone Platform</span>
           </p>
         </div>
       </div>

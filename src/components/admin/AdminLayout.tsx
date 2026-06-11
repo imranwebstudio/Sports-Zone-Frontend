@@ -41,7 +41,7 @@ export default function AdminLayout() {
               <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-display font-bold text-sm">SZ</span>
               </div>
-              <span className="font-display font-bold text-white text-sm">Live Football Arena</span>
+              <span className="font-display font-bold text-white text-sm">SportsZone</span>
             </Link>
           )}
           <button onClick={() => setCollapsed(!collapsed)} className="p-1.5 text-dark-400 hover:text-white rounded-lg hover:bg-dark-700">

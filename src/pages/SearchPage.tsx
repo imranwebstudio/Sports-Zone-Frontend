@@ -19,7 +19,7 @@ export default function SearchPage() {
   return (
     <>
       <Helmet>
-        <title>Search: {q} | Live Football Arena</title>
+        <title>Search: {q} | SportsZone</title>
         <meta name="robots" content="noindex" />
       </Helmet>
       <div className="max-w-7xl mx-auto px-4 py-8">
