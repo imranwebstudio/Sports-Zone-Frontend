@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
   timeout: 15000,
 });
 
@@ -119,4 +119,9 @@ export const uploadApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
+};
+
+// ─── News Sync ────────────────────────────────────────────────────────────────
+export const newsApi = {
+  sync: () => api.post('/news-sync/trigger'),
 };

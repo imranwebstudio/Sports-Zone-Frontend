@@ -40,6 +40,7 @@ export interface Team {
   slug: string;
   logo?: string;
   country?: string;
+  sport?: string;
 }
 
 export interface Tournament {

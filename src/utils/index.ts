@@ -13,7 +13,7 @@ export const formatMatchTime = (date: string) =>
 export const getImageUrl = (path?: string) => {
   if (!path) return '/placeholder-image.jpg';
   if (path.startsWith('http')) return path;
-  return `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:3001'}${path}`;
+  return `${(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '')}${path}`;
 };
 
 export const getCategoryColor = (color?: string) => color || '#16a34a';

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { FiPlus, FiEdit2, FiTrash2, FiEye, FiUpload } from 'react-icons/fi';
-import { articlesApi, categoriesApi, uploadApi } from '../../services/api';
+import { FiPlus, FiEdit2, FiTrash2, FiEye, FiUpload, FiRefreshCw } from 'react-icons/fi';
+import { articlesApi, categoriesApi, uploadApi, newsApi } from '../../services/api';
 import { Article, Category } from '../../types';
 import { formatDate } from '../../utils';
 import toast from 'react-hot-toast';
@@ -46,6 +46,15 @@ export default function AdminArticlesPage() {
   const deleteMutation = useMutation({
     mutationFn: articlesApi.remove,
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-articles'] }); toast.success('Article deleted'); },
+  });
+
+  const syncMutation = useMutation({
+    mutationFn: () => newsApi.sync(),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ['admin-articles'] });
+      toast.success(`Synced ${res.data.synced} new articles`);
+    },
+    onError: () => toast.error('News sync failed'),
   });
 
   const openNew = () => { setEditing(null); setForm(emptyForm); setModalOpen(true); };
@@ -95,9 +104,20 @@ export default function AdminArticlesPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-display font-bold text-dark-900">Articles</h2>
-        <button onClick={openNew} className="btn-primary text-sm gap-2">
-          <FiPlus className="w-4 h-4" /> New Article
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => syncMutation.mutate()}
+            disabled={syncMutation.isPending}
+            className="btn-ghost text-sm gap-2 flex items-center"
+            title="Pull latest sports news from NewsAPI"
+          >
+            <FiRefreshCw className={`w-4 h-4 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
+            {syncMutation.isPending ? 'Syncing…' : 'Sync News'}
+          </button>
+          <button onClick={openNew} className="btn-primary text-sm gap-2">
+            <FiPlus className="w-4 h-4" /> New Article
+          </button>
+        </div>
       </div>
 
       <div className="card overflow-hidden">
