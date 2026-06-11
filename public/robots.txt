@@ -4,4 +4,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://sportszone.com/sitemap.xml
+Sitemap: https://Live Football Arena.com/sitemap.xml

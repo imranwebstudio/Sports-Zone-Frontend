@@ -23,9 +23,9 @@ export default function CategoryPage() {
   return (
     <>
       <Helmet>
-        <title>{categoryName} News | SportsZone</title>
+        <title>{categoryName} News | Live Football Arena</title>
         <meta name="description" content={`Latest ${categoryName} news, match updates, and breaking stories.`} />
-        <link rel="canonical" href={`https://sportszone.com/category/${slug}`} />
+        <link rel="canonical" href={`https://Live Football Arena.com/category/${slug}`} />
       </Helmet>
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8">

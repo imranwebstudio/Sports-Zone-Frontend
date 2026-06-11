@@ -91,11 +91,11 @@ export default function MatchChannelsPage() {
   return (
     <>
       <Helmet>
-        <title>{match.title} — Live Stream & Channels | SportsZone</title>
+        <title>{match.title} — Live Stream & Channels | Live Football Arena</title>
         <meta name="description" content={`Watch ${match.title} live. Find all available channels and streams for this match. ${match.tournament.name}.`} />
         <meta property="og:title" content={match.title} />
         <meta property="og:type" content="website" />
-        <link rel="canonical" href={`https://sportszone.com/matches/${match.slug}`} />
+        <link rel="canonical" href={`https://Live Football Arena.com/matches/${match.slug}`} />
         <script type="application/ld+json">{JSON.stringify(schemaMarkup)}</script>
       </Helmet>
 

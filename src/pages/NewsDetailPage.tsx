@@ -77,15 +77,15 @@ export default function NewsDetailPage() {
     "author": { "@type": "Person", "name": article.author.name },
     "publisher": {
       "@type": "Organization",
-      "name": "SportsZone",
-      "logo": { "@type": "ImageObject", "url": "https://sportszone.com/logo.png" }
+      "name": "Live Football Arena",
+      "logo": { "@type": "ImageObject", "url": "https://Live Football Arena.com/logo.png" }
     },
   };
 
   return (
     <>
       <Helmet>
-        <title>{article.metaTitle || article.title} | SportsZone</title>
+        <title>{article.metaTitle || article.title} | Live Football Arena</title>
         <meta name="description" content={article.metaDescription || article.excerpt || article.title} />
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={article.excerpt || article.title} />
@@ -96,7 +96,7 @@ export default function NewsDetailPage() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={article.title} />
         <meta name="twitter:description" content={article.excerpt || ''} />
-        <link rel="canonical" href={`https://sportszone.com/news/${article.slug}`} />
+        <link rel="canonical" href={`https://Live Football Arena.com/news/${article.slug}`} />
         <script type="application/ld+json">{JSON.stringify(schemaMarkup)}</script>
       </Helmet>
 

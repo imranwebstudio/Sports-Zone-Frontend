@@ -48,7 +48,7 @@ export default function Header() {
       <div className="bg-dark-900 text-white">
         <div className="max-w-7xl mx-auto px-4 h-9 flex items-center justify-between text-xs">
           <div className="flex items-center gap-2 text-dark-300">
-            <span>📍 SportsZone — Your #1 Sports Hub</span>
+            <span>📍 Live Football Arena — Your #1 Sports Hub</span>
           </div>
           <div className="flex items-center gap-4">
             <Link to="/admin" className="hover:text-brand-400 transition-colors">Admin</Link>
@@ -83,10 +83,10 @@ export default function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <div className="w-9 h-9 bg-brand-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-display font-bold text-lg">SZ</span>
+              <span className="text-white font-display font-bold text-lg">LFA</span>
             </div>
             <span className="font-display font-bold text-xl text-white hidden sm:block">
-              Sports<span className="text-brand-400">Zone</span>
+              Live Football Arena
             </span>
           </Link>
 
