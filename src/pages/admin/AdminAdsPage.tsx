@@ -10,7 +10,7 @@ const AD_SLOTS = [
   'IN_ARTICLE_2', 'BETWEEN_CONTENT', 'FOOTER_BANNER',
   'STICKY_MOBILE', 'MATCH_PAGE_TOP', 'MATCH_PAGE_BOTTOM', 'NATIVE_RECOMMENDATION',
 ];
-const AD_NETWORKS = ['ADSENSE', 'EZOIC', 'MEDIA_NET', 'CUSTOM'];
+const AD_NETWORKS = ['ADSENSE', 'EZOIC', 'MEDIA_NET', 'MONETAG', 'CUSTOM'];
 
 const emptyForm = { name: '', slot: 'HEADER_BANNER', network: 'ADSENSE', code: '', position: 0, page: '' };
 

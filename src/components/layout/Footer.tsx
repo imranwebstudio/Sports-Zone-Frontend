@@ -36,10 +36,17 @@ export default function Footer() {
               Stay ahead of the game with SportsZone.
             </p>
             <div className="flex items-center gap-3">
-              {[FiTwitter, FiFacebook, FiYoutube, FiInstagram].map((Icon, i) => (
+              {[
+                { Icon: FiTwitter, href: 'https://twitter.com' },
+                { Icon: FiFacebook, href: 'https://facebook.com' },
+                { Icon: FiYoutube, href: 'https://youtube.com' },
+                { Icon: FiInstagram, href: 'https://instagram.com' },
+              ].map(({ Icon, href }) => (
                 <a
-                  key={i}
-                  href="#"
+                  key={href}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-9 h-9 bg-dark-700 hover:bg-brand-600 rounded-lg flex items-center justify-center transition-colors"
                 >
                   <Icon className="w-4 h-4 text-white" />

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { FiSearch, FiMenu, FiX, FiZap } from 'react-icons/fi';
-import { categoriesApi, articlesApi } from '../../services/api';
+import { articlesApi } from '../../services/api';
 import { Article } from '../../types';
 
 const NAV_LINKS = [
