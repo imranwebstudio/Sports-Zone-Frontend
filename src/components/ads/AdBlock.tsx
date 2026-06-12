@@ -34,14 +34,7 @@ export default function AdBlock({ slot, className = '', style, label = true }: A
     }
   }, [ads]);
 
-  if (!ads || ads.length === 0) {
-    return (
-      <div className={`ad-placeholder ${className}`} style={{ minHeight: 90, ...style }}>
-        {label && <span className="text-xs uppercase tracking-wider">Advertisement</span>}
-        <span className="text-xs text-dark-300 mt-1">Ad space — {slot.replace(/_/g, ' ')}</span>
-      </div>
-    );
-  }
+  if (!ads || ads.length === 0) return null;
 
   return (
     <div className={className} style={style}>
