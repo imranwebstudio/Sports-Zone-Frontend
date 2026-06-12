@@ -23,8 +23,9 @@ const AdminDashboardPage  = lazy(() => import('./pages/admin/AdminDashboardPage'
 const AdminMatchesPage    = lazy(() => import('./pages/admin/AdminMatchesPage'));
 const AdminArticlesPage   = lazy(() => import('./pages/admin/AdminArticlesPage'));
 const AdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage'));
-const AdminTeamsPage      = lazy(() => import('./pages/admin/AdminTeamsPage'));
-const AdminAdsPage        = lazy(() => import('./pages/admin/AdminAdsPage'));
+const AdminTeamsPage        = lazy(() => import('./pages/admin/AdminTeamsPage'));
+const AdminTournamentsPage  = lazy(() => import('./pages/admin/AdminTournamentsPage'));
+const AdminAdsPage          = lazy(() => import('./pages/admin/AdminAdsPage'));
 const AdminAnalyticsPage  = lazy(() => import('./pages/admin/AdminAnalyticsPage'));
 
 const queryClient = new QueryClient({
@@ -93,6 +94,7 @@ export default function App() {
                 <Route path="articles" element={<AdminArticlesPage />} />
                 <Route path="categories" element={<AdminCategoriesPage />} />
                 <Route path="teams" element={<AdminTeamsPage />} />
+                <Route path="tournaments" element={<AdminTournamentsPage />} />
                 <Route path="ads" element={<AdminAdsPage />} />
                 <Route path="analytics" element={<AdminAnalyticsPage />} />
               </Route>
