@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { categoriesApi } from '../../services/api';
+import { Loader } from '../../components/ui/Loader';
 import toast from 'react-hot-toast';
 
 const DEFAULT_CATEGORIES = [
@@ -48,8 +49,11 @@ export default function AdminCategoriesPage() {
     toast.success('Default categories seeded');
   };
 
+  const isBusy = saveMutation.isPending || deleteMutation.isPending;
+
   return (
     <div className="space-y-5">
+      {isBusy && <Loader fullscreen text={deleteMutation.isPending ? 'Deleting...' : 'Saving...'} />}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h2 className="text-xl font-display font-bold text-dark-900">Categories</h2>
         <div className="flex gap-2">

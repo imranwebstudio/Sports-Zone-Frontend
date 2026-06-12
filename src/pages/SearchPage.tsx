@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { FiSearch } from 'react-icons/fi';
 import { articlesApi } from '../services/api';
+import { Loader } from '../components/ui/Loader';
 import NewsCard from '../components/news/NewsCard';
 
 export default function SearchPage() {
@@ -31,9 +32,7 @@ export default function SearchPage() {
           {data && <span className="text-sm text-dark-400">({data.total} results)</span>}
         </div>
         {isLoading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[...Array(8)].map((_, i) => <div key={i} className="h-48 bg-dark-100 rounded-xl animate-pulse" />)}
-          </div>
+          <Loader text="Searching..." />
         ) : data?.items?.length ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {data.items.map((a: any) => <NewsCard key={a.id} article={a} />)}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FiPlus, FiEdit2, FiTrash2, FiEye, FiUpload, FiRefreshCw } from 'react-icons/fi';
 import { articlesApi, categoriesApi, uploadApi, newsApi } from '../../services/api';
+import { Loader } from '../../components/ui/Loader';
 import { Article, Category } from '../../types';
 import { formatDate } from '../../utils';
 import toast from 'react-hot-toast';
@@ -100,8 +101,11 @@ export default function AdminArticlesPage() {
     return <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${map[s] || ''}`}>{s}</span>;
   };
 
+  const isBusy = saveMutation.isPending || deleteMutation.isPending || syncMutation.isPending;
+
   return (
     <div className="space-y-5">
+      {isBusy && <Loader fullscreen text={syncMutation.isPending ? 'Syncing news...' : deleteMutation.isPending ? 'Deleting...' : 'Saving...'} />}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-display font-bold text-dark-900">Articles</h2>
         <div className="flex items-center gap-2">

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { FiPlus, FiEdit2, FiTrash2, FiWifi, FiEye, FiChevronDown } from 'react-icons/fi';
-import { matchesApi, teamsApi, tournamentsApi, channelsApi } from '../../services/api';
+import { FiPlus, FiEdit2, FiTrash2, FiWifi, FiEye, FiChevronDown, FiLink } from 'react-icons/fi';
+import { matchesApi, teamsApi, tournamentsApi, channelsApi, api } from '../../services/api';
+import { Loader } from '../../components/ui/Loader';
 import { Match, Team, Tournament } from '../../types';
 import { formatMatchTime, matchStatusLabel } from '../../utils';
 import toast from 'react-hot-toast';
@@ -14,7 +15,7 @@ const emptyForm = {
   matchTime: '', status: 'UPCOMING', homeScore: '', awayScore: '', minute: '',
   banner: '', isFeatured: false, isActive: true,
   destinationType: 'INTERNAL', externalUrl: '',
-  metaTitle: '', metaDescription: '',
+  metaTitle: '', metaDescription: '', externalId: '',
 };
 
 export default function AdminMatchesPage() {
@@ -72,6 +73,30 @@ export default function AdminMatchesPage() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-matches'] }); toast.success('Channel removed'); },
   });
 
+  const autoLinkMutation = useMutation({
+    mutationFn: () => api.post('/matches/auto-link', {}, { timeout: 120_000 }),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ['admin-matches'] });
+      const { linked, total } = res.data;
+      if (linked > 0) toast.success(`Linked ${linked}/${total} matches to ESPN!`, { duration: 6000 });
+      else toast.error(`0/${total} matches linked. Try "Import Real Schedule" instead.`, { duration: 8000 });
+    },
+    onError: (e: any) => toast.error(`Auto-link failed: ${e?.response?.data?.message || e?.message || 'unknown error'}`),
+  });
+
+  const importScheduleMutation = useMutation({
+    mutationFn: () => api.post('/matches/import-espn-schedule', {}, { timeout: 300_000 }),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ['admin-matches'] });
+      const { created, updated, skipped, total, missingTeams } = res.data;
+      const msg = `ESPN: ${created} new + ${updated} updated out of ${total} matches.`;
+      if (created + updated > 0) toast.success(msg, { duration: 8000 });
+      else toast.error(msg, { duration: 8000 });
+      if (missingTeams?.length) toast(`⚠️ Missing teams: ${missingTeams.join(', ')}`, { duration: 10000 });
+    },
+    onError: (e: any) => toast.error(`Import failed: ${e?.response?.data?.message || e?.message || 'unknown error'}`),
+  });
+
   const openNew = () => { setEditing(null); setForm(emptyForm); setModalOpen(true); };
   const openEdit = (m: Match) => {
     setEditing(m);
@@ -86,6 +111,7 @@ export default function AdminMatchesPage() {
       minute: m.minute ?? '',
       banner: m.banner ?? '',
       externalUrl: m.externalUrl ?? '',
+      externalId: (m as any).externalId ?? '',
     });
     setModalOpen(true);
   };
@@ -97,19 +123,43 @@ export default function AdminMatchesPage() {
       homeScore: form.homeScore !== '' ? parseInt(form.homeScore) : undefined,
       awayScore: form.awayScore !== '' ? parseInt(form.awayScore) : undefined,
       minute: form.minute !== '' ? parseInt(form.minute) : undefined,
+      externalId: form.externalId !== '' ? form.externalId : undefined,
     };
     saveMutation.mutate(payload);
   };
 
   const matches: Match[] = matchData?.items || [];
 
+  const isBusy = saveMutation.isPending || deleteMutation.isPending || addChannelMutation.isPending || removeChannelMutation.isPending || autoLinkMutation.isPending || importScheduleMutation.isPending;
+
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      {isBusy && <Loader fullscreen text={deleteMutation.isPending ? 'Deleting...' : 'Saving...'} />}
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h2 className="text-xl font-display font-bold text-dark-900">Matches</h2>
-        <button onClick={openNew} className="btn-primary text-sm gap-2">
-          <FiPlus className="w-4 h-4" /> New Match
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => importScheduleMutation.mutate()}
+            disabled={importScheduleMutation.isPending || autoLinkMutation.isPending}
+            title="Fetch the real WC 2026 schedule from ESPN and create any missing matches"
+            className="btn-ghost text-sm gap-2 flex items-center border border-green-300 text-green-700 hover:bg-green-50"
+          >
+            <FiWifi className={`w-4 h-4 ${importScheduleMutation.isPending ? 'animate-pulse' : ''}`} />
+            {importScheduleMutation.isPending ? 'Importing…' : 'Import Real Schedule'}
+          </button>
+          <button
+            onClick={() => autoLinkMutation.mutate()}
+            disabled={autoLinkMutation.isPending || importScheduleMutation.isPending}
+            title="Auto-link existing matches to ESPN by matching team names and dates"
+            className="btn-ghost text-sm gap-2 flex items-center"
+          >
+            <FiLink className={`w-4 h-4 ${autoLinkMutation.isPending ? 'animate-pulse' : ''}`} />
+            {autoLinkMutation.isPending ? 'Linking…' : 'Auto-Link Fixtures'}
+          </button>
+          <button onClick={openNew} className="btn-primary text-sm gap-2">
+            <FiPlus className="w-4 h-4" /> New Match
+          </button>
+        </div>
       </div>
 
       {/* Table */}
@@ -129,7 +179,13 @@ export default function AdminMatchesPage() {
                   <tr className="border-b border-dark-100 hover:bg-dark-50">
                     <td className="px-4 py-3">
                       <p className="font-medium text-dark-800">{m.homeTeam.name} vs {m.awayTeam.name}</p>
-                      {m.isFeatured && <span className="text-xs bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded">Featured</span>}
+                      <div className="flex gap-1 mt-0.5">
+                        {m.isFeatured && <span className="text-xs bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded">Featured</span>}
+                        {(m as any).externalId
+                          ? <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded flex items-center gap-0.5"><FiLink className="w-2.5 h-2.5" /> API #{(m as any).externalId}</span>
+                          : <span className="text-xs bg-dark-100 text-dark-400 px-1.5 py-0.5 rounded">No API link</span>
+                        }
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-dark-600">{m.tournament.name}</td>
                     <td className="px-4 py-3 text-dark-500 text-xs whitespace-nowrap">{formatMatchTime(m.matchTime)}</td>

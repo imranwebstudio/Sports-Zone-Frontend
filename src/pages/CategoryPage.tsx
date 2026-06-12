@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { articlesApi } from '../services/api';
+import { Loader } from '../components/ui/Loader';
 import { PaginatedResponse, Article } from '../types';
 import NewsCard from '../components/news/NewsCard';
 import Sidebar from '../components/layout/Sidebar';
@@ -35,9 +36,7 @@ export default function CategoryPage() {
             </h1>
             <AdBlock slot="HEADER_BANNER" style={{ minHeight: 90 }} className="mb-6" />
             {isLoading ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {[...Array(6)].map((_, i) => <div key={i} className="h-56 bg-dark-100 rounded-xl animate-pulse" />)}
-              </div>
+              <Loader text="Loading articles..." />
             ) : data?.items && data.items.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {data.items.map((a) => <NewsCard key={a.id} article={a} />)}

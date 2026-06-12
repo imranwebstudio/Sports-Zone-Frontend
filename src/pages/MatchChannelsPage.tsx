@@ -2,12 +2,29 @@ import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { FiPlayCircle, FiCalendar, FiTv, FiGlobe, FiExternalLink } from 'react-icons/fi';
+import {
+  FiPlayCircle, FiCalendar, FiTv, FiGlobe, FiExternalLink,
+  FiRefreshCw, FiActivity,
+} from 'react-icons/fi';
 import { matchesApi, articlesApi, analyticsApi } from '../services/api';
 import { Match, Article, PaginatedResponse } from '../types';
 import { formatMatchTime, getImageUrl, matchStatusLabel, matchStatusColor } from '../utils';
+import { Loader } from '../components/ui/Loader';
 import NewsCard from '../components/news/NewsCard';
 import AdBlock from '../components/ads/AdBlock';
+
+// ─── Live event helpers ───────────────────────────────────────────────────────
+
+function eventIcon(type: string, detail: string) {
+  if (type === 'Goal') return '⚽';
+  if (type === 'Card' && detail === 'Yellow Card') return '🟨';
+  if (type === 'Card' && detail === 'Red Card') return '🟥';
+  if (type === 'subst') return '🔄';
+  if (type === 'Var') return '📺';
+  return '•';
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
 const TeamDisplay = ({ team }: { team: Match['homeTeam'] }) => (
   <div className="flex flex-col items-center gap-3">
@@ -27,6 +44,8 @@ const TeamDisplay = ({ team }: { team: Match['homeTeam'] }) => (
   </div>
 );
 
+// ─── Main page ────────────────────────────────────────────────────────────────
+
 export default function MatchChannelsPage() {
   const { slug } = useParams<{ slug: string }>();
 
@@ -34,6 +53,16 @@ export default function MatchChannelsPage() {
     queryKey: ['match', slug],
     queryFn: () => matchesApi.getOne(slug!).then((r) => r.data),
     enabled: !!slug,
+  });
+
+  const isActiveMatch = match?.status === 'LIVE' || match?.status === 'HT' || match?.status === 'UPCOMING';
+
+  const { data: liveMatch, dataUpdatedAt } = useQuery<any>({
+    queryKey: ['match-live', slug],
+    queryFn: () => matchesApi.getLiveData(slug!).then((r) => r.data),
+    enabled: !!slug && !!match,
+    refetchInterval: isActiveMatch ? 30_000 : false,
+    staleTime: 25_000,
   });
 
   const { data: sideNews } = useQuery<PaginatedResponse<Article>>({
@@ -54,13 +83,8 @@ export default function MatchChannelsPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-10">
-        <div className="animate-pulse space-y-4">
-          <div className="h-48 bg-dark-200 rounded-xl" />
-          <div className="grid grid-cols-2 gap-4">
-            {[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-dark-100 rounded-xl" />)}
-          </div>
-        </div>
+      <div className="max-w-7xl mx-auto px-4">
+        <Loader text="Loading match..." />
       </div>
     );
   }
@@ -74,18 +98,38 @@ export default function MatchChannelsPage() {
     );
   }
 
+  // Prefer live API data for scores/minute when available
+  const liveData = liveMatch?.liveData;
+  const displayScore = liveData
+    ? { home: liveData.score.home, away: liveData.score.away }
+    : { home: match.homeScore, away: match.awayScore };
+  const displayMinute = liveData?.elapsed ?? match.minute;
+  const hasScore = displayScore.home != null && displayScore.away != null;
+
   const statusCls = matchStatusColor[match.status];
   const isLive = match.status === 'LIVE' || match.status === 'HT';
 
+  const goals = (liveData?.events || []).filter(
+    (e: any) => e.type === 'Goal',
+  );
+  const cards = (liveData?.events || []).filter(
+    (e: any) => e.type === 'Card' && (e.detail === 'Red Card' || e.detail === 'Yellow Card'),
+  );
+  const hasEvents = goals.length > 0 || cards.length > 0;
+
+  const lastUpdated = dataUpdatedAt
+    ? new Date(dataUpdatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    : null;
+
   const schemaMarkup = {
-    "@context": "https://schema.org",
-    "@type": "SportsEvent",
-    "name": match.title,
-    "startDate": match.matchTime,
-    "sport": "Football",
-    "homeTeam": { "@type": "SportsTeam", "name": match.homeTeam.name },
-    "awayTeam": { "@type": "SportsTeam", "name": match.awayTeam.name },
-    "location": { "@type": "Place", "name": match.tournament.name },
+    '@context': 'https://schema.org',
+    '@type': 'SportsEvent',
+    name: match.title,
+    startDate: match.matchTime,
+    sport: 'Football',
+    homeTeam: { '@type': 'SportsTeam', name: match.homeTeam.name },
+    awayTeam: { '@type': 'SportsTeam', name: match.awayTeam.name },
+    location: { '@type': 'Place', name: match.tournament.name },
   };
 
   return (
@@ -118,6 +162,8 @@ export default function MatchChannelsPage() {
                   <img src={getImageUrl(match.banner)} alt={match.title} className="w-full h-full object-cover" />
                 </div>
               )}
+
+              {/* Tournament bar */}
               <div className="bg-dark-800 px-6 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {match.tournament.logo && (
@@ -125,31 +171,38 @@ export default function MatchChannelsPage() {
                   )}
                   <span className="text-dark-200 text-sm font-medium">{match.tournament.name}</span>
                 </div>
-                <span className={`text-sm font-bold px-3 py-1 rounded-full flex items-center gap-1.5 ${statusCls}`}>
-                  {isLive && <span className="live-dot" />}
-                  {matchStatusLabel[match.status]}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className={`text-sm font-bold px-3 py-1 rounded-full flex items-center gap-1.5 ${statusCls}`}>
+                    {isLive && <span className="live-dot" />}
+                    {liveData ? liveData.statusLong : matchStatusLabel[match.status]}
+                  </span>
+                  {isActiveMatch && liveData && (
+                    <span className="text-dark-400 text-xs flex items-center gap-1">
+                      <FiRefreshCw className="w-3 h-3" />
+                      {lastUpdated}
+                    </span>
+                  )}
+                </div>
               </div>
 
+              {/* Score section */}
               <div className="p-8">
                 <div className="flex items-center justify-between gap-4">
                   <TeamDisplay team={match.homeTeam} />
 
                   <div className="text-center flex-shrink-0">
-                    {isLive && match.homeScore != null ? (
+                    {(isLive || match.status === 'FINISHED') && hasScore ? (
                       <>
-                        <div className="font-display font-bold text-4xl text-dark-900 mb-1">
-                          {match.homeScore} — {match.awayScore}
+                        <div className="font-display font-bold text-5xl text-dark-900 mb-1 tabular-nums">
+                          {displayScore.home} <span className="text-dark-300">—</span> {displayScore.away}
                         </div>
-                        {match.minute && (
-                          <div className="text-red-600 font-bold text-sm">{match.minute}'</div>
+                        {displayMinute != null && isLive && (
+                          <div className="text-red-600 font-bold text-sm">{displayMinute}'</div>
+                        )}
+                        {match.status === 'FINISHED' && (
+                          <div className="text-sm text-dark-500 font-normal mt-1">Full Time</div>
                         )}
                       </>
-                    ) : match.status === 'FINISHED' && match.homeScore != null ? (
-                      <div className="font-display font-bold text-4xl text-dark-900">
-                        {match.homeScore} — {match.awayScore}
-                        <div className="text-sm text-dark-500 font-normal mt-1">Full Time</div>
-                      </div>
                     ) : (
                       <div>
                         <div className="text-2xl font-display font-bold text-dark-300 mb-2">VS</div>
@@ -164,11 +217,63 @@ export default function MatchChannelsPage() {
                   <TeamDisplay team={match.awayTeam} />
                 </div>
               </div>
+
+              {/* Stats bar from API */}
+              {liveData?.stats && (
+                <div className="border-t border-dark-100 px-6 py-4 bg-dark-50">
+                  <div className="grid grid-cols-3 gap-4 text-center text-sm">
+                    {[
+                      { label: 'Possession', home: liveData.stats.home.possession, away: liveData.stats.away.possession },
+                      { label: 'Shots on Goal', home: liveData.stats.home.shotsOnGoal, away: liveData.stats.away.shotsOnGoal },
+                      { label: 'Corners', home: liveData.stats.home.corners, away: liveData.stats.away.corners },
+                    ].map(({ label, home, away }) =>
+                      home != null || away != null ? (
+                        <div key={label}>
+                          <div className="flex justify-between font-semibold text-dark-800 text-base mb-0.5">
+                            <span>{home ?? '—'}</span>
+                            <span>{away ?? '—'}</span>
+                          </div>
+                          <div className="text-xs text-dark-400">{label}</div>
+                        </div>
+                      ) : null,
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Goal / Card events */}
+            {hasEvents && (
+              <section>
+                <h2 className="section-title mb-3 flex items-center gap-2">
+                  <FiActivity className="w-5 h-5 text-brand-500" />
+                  Match Events
+                </h2>
+                <div className="card divide-y divide-dark-100">
+                  {[...goals, ...cards]
+                    .sort((a: any, b: any) => a.elapsed - b.elapsed)
+                    .map((e: any, i: number) => (
+                      <div key={i} className="px-4 py-3 flex items-center gap-3 text-sm">
+                        <span className="w-9 text-right font-mono text-dark-400 shrink-0">
+                          {e.elapsed}{e.extraTime ? `+${e.extraTime}` : ''}'
+                        </span>
+                        <span className="text-lg shrink-0">{eventIcon(e.type, e.detail)}</span>
+                        <div className="flex-1 min-w-0">
+                          <span className="font-medium text-dark-800">{e.playerName}</span>
+                          {e.detail && e.detail !== 'Normal Goal' && (
+                            <span className="text-dark-400 ml-1 text-xs">({e.detail})</span>
+                          )}
+                        </div>
+                        <span className="text-xs text-dark-400 shrink-0">{e.teamName}</span>
+                      </div>
+                    ))}
+                </div>
+              </section>
+            )}
 
             <AdBlock slot="MATCH_PAGE_TOP" style={{ minHeight: 90 }} />
 
-            {/* Channel List */}
+            {/* Channel list */}
             {match.channels && match.channels.length > 0 ? (
               <section>
                 <h2 className="section-title mb-4 flex items-center gap-2">

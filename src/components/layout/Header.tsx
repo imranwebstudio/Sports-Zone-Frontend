@@ -45,7 +45,7 @@ export default function Header() {
   return (
     <header className={`sticky top-0 z-50 transition-shadow duration-300 ${scrolled ? 'shadow-lg' : ''}`}>
       {/* Top bar */}
-      <div className="bg-dark-900 text-white">
+      {/* <div className="bg-dark-900 text-white">
         <div className="max-w-7xl mx-auto px-4 h-9 flex items-center justify-between text-xs">
           <div className="flex items-center gap-2 text-dark-300">
             <span>📍 Live Football Arena — Your #1 Sports Hub</span>
@@ -54,7 +54,7 @@ export default function Header() {
             <Link to="/admin" className="hover:text-brand-400 transition-colors">Admin</Link>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Breaking ticker */}
       {breaking && breaking.length > 0 && (

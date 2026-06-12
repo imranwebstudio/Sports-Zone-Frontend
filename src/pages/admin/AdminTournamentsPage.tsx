@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FiPlus, FiEdit2, FiTrash2, FiUpload, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
 import { tournamentsApi, uploadApi } from '../../services/api';
+import { Loader } from '../../components/ui/Loader';
 import toast from 'react-hot-toast';
 
 interface Tournament {
@@ -65,8 +66,11 @@ export default function AdminTournamentsPage() {
   const openNew = () => { setEditing(null); setForm(emptyForm); setModalOpen(true); };
   const openEdit = (t: Tournament) => { setEditing(t); setForm({ name: t.name, slug: t.slug, logo: t.logo || '', country: t.country || '', sport: t.sport, sortOrder: t.sortOrder }); setModalOpen(true); };
 
+  const isBusy = saveMutation.isPending || deleteMutation.isPending || toggleMutation.isPending;
+
   return (
     <div className="space-y-5">
+      {isBusy && <Loader fullscreen text={deleteMutation.isPending ? 'Deleting...' : 'Saving...'} />}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-display font-bold text-dark-900">Tournaments</h2>
         <button onClick={openNew} className="btn-primary text-sm gap-2">

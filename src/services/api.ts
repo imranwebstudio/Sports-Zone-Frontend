@@ -44,6 +44,7 @@ export const matchesApi = {
   getLive: () => api.get('/matches/live'),
   getFeatured: () => api.get('/matches/featured'),
   getOne: (slug: string) => api.get(`/matches/${slug}`),
+  getLiveData: (slug: string) => api.get(`/matches/${slug}/live`),
   getStats: () => api.get('/matches/stats'),
   create: (data: any) => api.post('/matches', data),
   update: (id: string, data: any) => api.patch(`/matches/${id}`, data),

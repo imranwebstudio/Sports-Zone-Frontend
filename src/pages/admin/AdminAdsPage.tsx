@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FiPlus, FiTrash2, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
 import { adsApi } from '../../services/api';
+import { Loader } from '../../components/ui/Loader';
 import toast from 'react-hot-toast';
 
 const AD_SLOTS = [
@@ -45,8 +46,11 @@ export default function AdminAdsPage() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-ads'] }); toast.success('Ad deleted'); },
   });
 
+  const isBusy = createMutation.isPending || deleteMutation.isPending || toggleMutation.isPending;
+
   return (
     <div className="space-y-5">
+      {isBusy && <Loader fullscreen text={deleteMutation.isPending ? 'Deleting...' : 'Saving...'} />}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-display font-bold text-dark-900">Advertisement Manager</h2>

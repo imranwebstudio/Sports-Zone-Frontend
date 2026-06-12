@@ -9,6 +9,7 @@ import {
 import { articlesApi, analyticsApi } from '../services/api';
 import { Article } from '../types';
 import { formatDate, getImageUrl } from '../utils';
+import { Loader } from '../components/ui/Loader';
 import NewsCard from '../components/news/NewsCard';
 import AdBlock from '../components/ads/AdBlock';
 import Sidebar from '../components/layout/Sidebar';
@@ -44,14 +45,8 @@ export default function NewsDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-10">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-dark-200 rounded w-3/4" />
-          <div className="h-72 bg-dark-200 rounded-xl" />
-          <div className="space-y-2">
-            {[...Array(8)].map((_, i) => <div key={i} className="h-4 bg-dark-100 rounded" />)}
-          </div>
-        </div>
+      <div className="max-w-7xl mx-auto px-4">
+        <Loader text="Loading article..." />
       </div>
     );
   }

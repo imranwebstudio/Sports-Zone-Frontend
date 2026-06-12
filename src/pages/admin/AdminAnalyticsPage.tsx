@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { FiEye, FiFileText, FiCalendar, FiTrendingUp } from 'react-icons/fi';
 import { analyticsApi } from '../../services/api';
+import { Loader } from '../../components/ui/Loader';
 
 export default function AdminAnalyticsPage() {
   const { data: stats, isLoading } = useQuery({
@@ -10,11 +11,7 @@ export default function AdminAnalyticsPage() {
     queryFn: () => analyticsApi.getDashboard().then((r) => r.data),
   });
 
-  if (isLoading) {
-    return <div className="animate-pulse space-y-4">
-      {[...Array(4)].map((_, i) => <div key={i} className="h-20 bg-dark-100 rounded-xl" />)}
-    </div>;
-  }
+  if (isLoading) return <Loader text="Loading analytics..." />;
 
   return (
     <div className="space-y-6">

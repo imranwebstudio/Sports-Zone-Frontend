@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FiPlus, FiEdit2, FiTrash2, FiUpload } from 'react-icons/fi';
 import { teamsApi, uploadApi } from '../../services/api';
+import { Loader } from '../../components/ui/Loader';
 import { Team } from '../../types';
 import toast from 'react-hot-toast';
 
@@ -38,8 +39,11 @@ export default function AdminTeamsPage() {
     catch { toast.error('Upload failed'); } finally { setUploading(false); }
   };
 
+  const isBusy = saveMutation.isPending || deleteMutation.isPending;
+
   return (
     <div className="space-y-5">
+      {isBusy && <Loader fullscreen text={deleteMutation.isPending ? 'Deleting...' : 'Saving...'} />}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-display font-bold text-dark-900">Teams</h2>
         <button onClick={() => { setEditing(null); setForm(emptyForm); setModalOpen(true); }} className="btn-primary text-sm gap-2">
