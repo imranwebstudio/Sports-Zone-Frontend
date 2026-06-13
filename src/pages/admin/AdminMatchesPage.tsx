@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { FiPlus, FiEdit2, FiTrash2, FiWifi, FiEye, FiChevronDown, FiLink } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiWifi, FiEye, FiChevronDown, FiLink, FiSearch, FiX } from 'react-icons/fi';
+import dayjs from 'dayjs';
 import { matchesApi, teamsApi, tournamentsApi, channelsApi, api } from '../../services/api';
 import { Loader } from '../../components/ui/Loader';
 import { Match, Team, Tournament } from '../../types';
@@ -9,6 +10,76 @@ import toast from 'react-hot-toast';
 
 const STATUS_OPTIONS = ['UPCOMING', 'LIVE', 'HT', 'FINISHED', 'POSTPONED', 'CANCELLED'];
 const DEST_OPTIONS = ['INTERNAL', 'EXTERNAL'];
+
+// ─── Searchable team combobox ─────────────────────────────────────────────────
+
+function TeamCombobox({ value, teams, onChange, placeholder }: {
+  value: string;
+  teams: Team[];
+  onChange: (id: string) => void;
+  placeholder?: string;
+}) {
+  const selected = teams.find((t) => t.id === value);
+  const [query, setQuery] = useState(selected?.name || '');
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setQuery(selected?.name || '');
+  }, [value, selected?.name]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const filtered = query
+    ? teams.filter((t) => t.name.toLowerCase().includes(query.toLowerCase()))
+    : teams;
+
+  return (
+    <div ref={ref} className="relative">
+      <div className="relative">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); if (value) onChange(''); }}
+          onFocus={() => setOpen(true)}
+          placeholder={placeholder || 'Type to search team…'}
+          className="w-full border border-dark-300 rounded-lg px-3 py-2 text-sm pr-7"
+          autoComplete="off"
+        />
+        {value && (
+          <button type="button" onClick={() => { onChange(''); setQuery(''); }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-dark-400 hover:text-dark-600">
+            <FiX className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+      {/* validation shim — keeps "required" working without visible element */}
+      <input type="text" value={value} required readOnly tabIndex={-1}
+        className="sr-only" aria-hidden="true" />
+      {open && filtered.length > 0 && (
+        <ul className="absolute z-50 w-full mt-1 bg-white border border-dark-200 rounded-lg shadow-lg max-h-52 overflow-y-auto">
+          {filtered.map((t) => (
+            <li key={t.id}>
+              <button
+                type="button"
+                onClick={() => { onChange(t.id); setQuery(t.name); setOpen(false); }}
+                className={`w-full text-left px-3 py-2 text-sm hover:bg-brand-50 hover:text-brand-700 ${t.id === value ? 'bg-brand-50 font-semibold text-brand-700' : ''}`}
+              >
+                {t.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 const emptyForm = {
   title: '', slug: '', homeTeamId: '', awayTeamId: '', tournamentId: '',
@@ -23,12 +94,16 @@ export default function AdminMatchesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Match | null>(null);
   const [channelMatchId, setChannelMatchId] = useState<string | null>(null);
+  const [tableSearch, setTableSearch] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterTournament, setFilterTournament] = useState('');
+  const [filterDate, setFilterDate] = useState('');
   const [form, setForm] = useState<any>(emptyForm);
   const [channelForm, setChannelForm] = useState({ name: '', language: 'English', logo: '', destinationUrl: '', sortOrder: 0 });
 
   const { data: matchData } = useQuery({
     queryKey: ['admin-matches'],
-    queryFn: () => matchesApi.getAll({ limit: 100 }).then((r) => r.data),
+    queryFn: () => matchesApi.getAll({ limit: 500 }).then((r) => r.data),
   });
   const { data: teams } = useQuery<Team[]>({
     queryKey: ['teams'],
@@ -105,7 +180,7 @@ export default function AdminMatchesPage() {
       homeTeamId: m.homeTeam.id,
       awayTeamId: m.awayTeam.id,
       tournamentId: m.tournament.id,
-      matchTime: m.matchTime ? m.matchTime.slice(0, 16) : '',
+      matchTime: m.matchTime ? dayjs(m.matchTime).format('YYYY-MM-DDTHH:mm') : '',
       homeScore: m.homeScore ?? '',
       awayScore: m.awayScore ?? '',
       minute: m.minute ?? '',
@@ -120,6 +195,8 @@ export default function AdminMatchesPage() {
     e.preventDefault();
     const payload = {
       ...form,
+      // Convert local datetime-input value to UTC ISO so the backend stores the correct time
+      matchTime: form.matchTime ? new Date(form.matchTime).toISOString() : undefined,
       homeScore: form.homeScore !== '' ? parseInt(form.homeScore) : undefined,
       awayScore: form.awayScore !== '' ? parseInt(form.awayScore) : undefined,
       minute: form.minute !== '' ? parseInt(form.minute) : undefined,
@@ -128,7 +205,22 @@ export default function AdminMatchesPage() {
     saveMutation.mutate(payload);
   };
 
-  const matches: Match[] = matchData?.items || [];
+  // Sort by matchTime so rows don't jump when status changes (backend sorts by status asc)
+  const allMatches: Match[] = [...(matchData?.items || [])].sort(
+    (a, b) => new Date(a.matchTime).getTime() - new Date(b.matchTime).getTime(),
+  );
+
+  const q = tableSearch.toLowerCase().trim();
+  const matches = allMatches.filter((m) => {
+    if (q && !m.homeTeam.name.toLowerCase().includes(q) && !m.awayTeam.name.toLowerCase().includes(q) && !m.tournament.name.toLowerCase().includes(q)) return false;
+    if (filterStatus && m.status !== filterStatus) return false;
+    if (filterTournament && m.tournament.id !== filterTournament) return false;
+    if (filterDate && !dayjs(m.matchTime).format('YYYY-MM-DD').startsWith(filterDate)) return false;
+    return true;
+  });
+
+  const hasFilters = q || filterStatus || filterTournament || filterDate;
+  const clearFilters = () => { setTableSearch(''); setFilterStatus(''); setFilterTournament(''); setFilterDate(''); };
 
   const isBusy = saveMutation.isPending || deleteMutation.isPending || addChannelMutation.isPending || removeChannelMutation.isPending || autoLinkMutation.isPending || importScheduleMutation.isPending;
 
@@ -160,6 +252,65 @@ export default function AdminMatchesPage() {
             <FiPlus className="w-4 h-4" /> New Match
           </button>
         </div>
+      </div>
+
+      {/* Filter bar */}
+      <div className="flex flex-wrap gap-2 items-center">
+        {/* Text search */}
+        <div className="relative">
+          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400" />
+          <input
+            type="text"
+            value={tableSearch}
+            onChange={(e) => setTableSearch(e.target.value)}
+            placeholder="Search team…"
+            className="border border-dark-300 rounded-lg pl-9 pr-8 py-2 text-sm w-48"
+          />
+          {tableSearch && (
+            <button onClick={() => setTableSearch('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-dark-400 hover:text-dark-600">
+              <FiX className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* Status filter */}
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="border border-dark-300 rounded-lg px-3 py-2 text-sm text-dark-700"
+        >
+          <option value="">All Statuses</option>
+          {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+
+        {/* Tournament filter */}
+        <select
+          value={filterTournament}
+          onChange={(e) => setFilterTournament(e.target.value)}
+          className="border border-dark-300 rounded-lg px-3 py-2 text-sm text-dark-700"
+        >
+          <option value="">All Tournaments</option>
+          {tournaments?.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+        </select>
+
+        {/* Date filter */}
+        <input
+          type="date"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
+          className="border border-dark-300 rounded-lg px-3 py-2 text-sm text-dark-700"
+        />
+
+        {/* Clear all */}
+        {hasFilters && (
+          <button onClick={clearFilters}
+            className="flex items-center gap-1 text-sm text-red-500 hover:text-red-700 font-medium">
+            <FiX className="w-3.5 h-3.5" /> Clear
+          </button>
+        )}
+
+        <span className="text-xs text-dark-400 ml-1">{matches.length} result{matches.length !== 1 ? 's' : ''}</span>
       </div>
 
       {/* Table */}
@@ -275,7 +426,9 @@ export default function AdminMatchesPage() {
                 </React.Fragment>
               ))}
               {matches.length === 0 && (
-                <tr><td colSpan={6} className="text-center py-10 text-dark-400">No matches yet. Create one!</td></tr>
+                <tr><td colSpan={6} className="text-center py-10 text-dark-400">
+                  {hasFilters ? 'No matches found for the selected filters.' : 'No matches yet. Create one!'}
+                </td></tr>
               )}
             </tbody>
           </table>
@@ -306,19 +459,21 @@ export default function AdminMatchesPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-dark-600 mb-1">Home Team</label>
-                  <select required value={form.homeTeamId} onChange={(e) => setForm((f: any) => ({ ...f, homeTeamId: e.target.value }))}
-                    className="w-full border border-dark-300 rounded-lg px-3 py-2 text-sm">
-                    <option value="">Select team</option>
-                    {teams?.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                  </select>
+                  <TeamCombobox
+                    value={form.homeTeamId}
+                    teams={teams || []}
+                    onChange={(id) => setForm((f: any) => ({ ...f, homeTeamId: id }))}
+                    placeholder="Search home team…"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-dark-600 mb-1">Away Team</label>
-                  <select required value={form.awayTeamId} onChange={(e) => setForm((f: any) => ({ ...f, awayTeamId: e.target.value }))}
-                    className="w-full border border-dark-300 rounded-lg px-3 py-2 text-sm">
-                    <option value="">Select team</option>
-                    {teams?.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                  </select>
+                  <TeamCombobox
+                    value={form.awayTeamId}
+                    teams={teams || []}
+                    onChange={(id) => setForm((f: any) => ({ ...f, awayTeamId: id }))}
+                    placeholder="Search away team…"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-dark-600 mb-1">Tournament</label>
