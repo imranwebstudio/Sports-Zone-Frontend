@@ -31,7 +31,7 @@ export default function MatchesPage() {
       <Helmet>
         <title>Live & Upcoming Matches | SportsZone</title>
         <meta name="description" content="Watch live football matches, upcoming fixtures, and finished results. Find all available stream channels." />
-        <link rel="canonical" href="https://sportszone.com/matches" />
+        <link rel="canonical" href="https://www.livefootballarena.online/matches" />
       </Helmet>
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">

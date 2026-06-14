@@ -29,15 +29,15 @@ export default function AdminLoginPage() {
 
   return (
     <>
-      <Helmet><title>Admin Login | SportsZone</title></Helmet>
+      <Helmet><title>Admin Login | Live Football Arena</title></Helmet>
       <div className="min-h-screen bg-dark-900 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="w-14 h-14 bg-brand-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-white font-display font-bold text-2xl">SZ</span>
+              <span className="text-white font-display font-bold text-2xl">LFA</span>
             </div>
             <h1 className="text-2xl font-display font-bold text-white">Admin Login</h1>
-            <p className="text-dark-400 mt-1">SportsZone Management Portal</p>
+            <p className="text-dark-400 mt-1">Live Football Arena Management Portal</p>
           </div>
 
           <div className="card p-8 bg-dark-800 border-dark-700">
@@ -80,7 +80,7 @@ export default function AdminLoginPage() {
           </div>
 
           <p className="text-center text-dark-500 text-xs mt-4">
-            Default: admin@sportszone.com / Admin@1234
+            {/* Default: admin@sportszone.com / Admin@1234 */}
           </p>
         </div>
       </div>

@@ -25,15 +25,15 @@ export default function Footer() {
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-9 h-9 bg-brand-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-display font-bold text-lg">SZ</span>
+                <span className="text-white font-display font-bold text-lg">LFA</span>
               </div>
               <span className="font-display font-bold text-xl text-white">
-                Sports<span className="text-brand-400">Zone</span>
+                Live Football<span className="text-brand-400"> Arena</span>
               </span>
             </Link>
             <p className="text-sm leading-relaxed mb-4">
               Your ultimate destination for live sports scores, news, and match coverage.
-              Stay ahead of the game with SportsZone.
+              Stay ahead of the game with Live Football Arena.
             </p>
             <div className="flex items-center gap-3">
               {[
@@ -106,10 +106,10 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-dark-700 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-          <p>© {new Date().getFullYear()} SportsZone. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Live Football Arena. All rights reserved.</p>
           <p>
             Powered by{' '}
-            <span className="text-brand-400 font-medium">SportsZone Platform</span>
+            <span className="text-brand-400 font-medium">Live Football Arena Platform</span>
           </p>
         </div>
       </div>

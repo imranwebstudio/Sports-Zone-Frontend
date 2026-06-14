@@ -9,6 +9,8 @@ import { Match } from '../types';
 import Sidebar from '../components/layout/Sidebar';
 import AdBlock from '../components/ads/AdBlock';
 import { getImageUrl, matchStatusColor } from '../utils';
+import whatsappIcon from '../../public/apple.png';
+import telegramIcon from '../../public/telegram.png';
 
 // ─── Match card styled after live-scores sites ───────────────────────────────
 
@@ -49,7 +51,7 @@ function ClosestMatchCard({ match }: { match: Match }) {
   );
 
   const card = (
-    <div className="bg-white border border-dark-200 rounded-xl overflow-hidden hover:border-brand-300 hover:shadow-md transition-all">
+    <div className="bg-white border border-dark-200 rounded-xl overflow-hidden mb-4 hover:border-brand-300 hover:shadow-md transition-all">
       {/* Main match row */}
       <div className="flex items-center px-4 py-5 gap-3">
         <TeamBadge logo={match.homeTeam.logo} name={match.homeTeam.name} align="left" />
@@ -112,13 +114,13 @@ export default function HomePage() {
     staleTime: 60_000,
   });
 
-  // 3 closest: live first, then soonest upcoming
+  // 6 closest: live first, then soonest upcoming
   const closestMatches: Match[] = [
     ...(liveMatches || []),
     ...((upcomingData?.items || []) as Match[]).filter(
       (m) => !liveMatches?.find((lm) => lm.id === m.id),
     ),
-  ].slice(0, 3);
+  ].slice(0, 6);
 
   const anyLive = (liveMatches?.length ?? 0) > 0;
 
@@ -130,15 +132,15 @@ export default function HomePage() {
         <meta property="og:title" content="SportsZone — Live Scores & Sports News" />
         <meta property="og:description" content="Live football scores, sports news and match coverage." />
         <meta property="og:type" content="website" />
-        <link rel="canonical" href="https://sportszone.com/" />
+        <link rel="canonical" href="https://www.livefootballarena.online/" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'WebSite',
-          name: 'SportsZone',
+          name: 'Live Football Arena',
           url: 'https://sportszone.com',
           potentialAction: {
             '@type': 'SearchAction',
-            target: 'https://sportszone.com/search?q={search_term_string}',
+            target: 'https://www.livefootballarena.online/search?q={search_term_string}',
             'query-input': 'required name=search_term_string',
           },
         })}</script>
@@ -156,6 +158,39 @@ export default function HomePage() {
 
           {/* Main Content — closest matches only */}
           <main className="min-w-0 space-y-6">
+            {/* WhatsApp Banner */}
+            <div className=" border border-green-400 bg-white rounded-lg p-4">
+              <a href=" https://whatsapp.com/channel/0029Vb8BqPo0gcfNLczM5P3c" className="flex items-center justify-between " target="_blank" rel="noopener noreferrer">
+                <img className='size-10' src={whatsappIcon} alt="WhatsApp" />
+                <p className="text-md font-bold text-dark-800">Whatsapp channel </p>
+                <a
+                  href=" https://whatsapp.com/channel/0029Vb8BqPo0gcfNLczM5P3c"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className=" text-sm text-green-600 hover:text-green-700 font-medium flex items-center"
+                >
+                  Join Now <FiChevronRight className="w-4 h-4" />
+                </a>
+              </a>
+            </div>
+
+            {/* Telegram Banner */}
+            <div className=" border border-green-400 bg-white rounded-lg p-4">
+              <a href="https://t.me/Livefootballarena" className="flex items-center justify-between " target="_blank" rel="noopener noreferrer">
+                <img className='size-10' src={telegramIcon} alt="Telegram" />
+                <p className="text-md font-bold text-dark-800">Telegram channel </p>
+                <a
+                  href="https://t.me/Livefootballarena"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className=" text-sm text-green-600 hover:text-green-700 font-medium flex items-center"
+                >
+                  Join Now <FiChevronRight className="w-4 h-4" />
+                </a>
+              </a>
+            </div>
+
+
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h1 className="section-title flex items-center gap-2">
@@ -175,7 +210,7 @@ export default function HomePage() {
               </div>
 
               {closestMatches.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-3 ">
                   {closestMatches.map((match) => (
                     <ClosestMatchCard key={match.id} match={match} />
                   ))}

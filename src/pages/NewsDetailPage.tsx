@@ -73,7 +73,7 @@ export default function NewsDetailPage() {
     "publisher": {
       "@type": "Organization",
       "name": "SportsZone",
-      "logo": { "@type": "ImageObject", "url": "https://sportszone.com/logo.png" }
+      "logo": { "@type": "ImageObject", "url": "https://www.livefootballarena.online/logo.png" }
     },
   };
 
@@ -91,7 +91,7 @@ export default function NewsDetailPage() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={article.title} />
         <meta name="twitter:description" content={article.excerpt || ''} />
-        <link rel="canonical" href={`https://sportszone.com/news/${article.slug}`} />
+        <link rel="canonical" href={`https://www.livefootballarena.online/news/${article.slug}`} />
         <script type="application/ld+json">{JSON.stringify(schemaMarkup)}</script>
       </Helmet>
 

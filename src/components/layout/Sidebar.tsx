@@ -30,7 +30,7 @@ export default function Sidebar({ side }: SidebarProps) {
         <div className="card p-4">
           <h2 className="section-title mb-4">Latest News</h2>
           <div className="space-y-1">
-            {trending?.slice(0, 6).map((a) => (
+            {trending?.slice(0, 3).map((a) => (
               <NewsCard key={a.id} article={a} variant="horizontal" />
             ))}
           </div>
@@ -41,7 +41,7 @@ export default function Sidebar({ side }: SidebarProps) {
         <div className="card p-4">
           <h2 className="section-title mb-4">Popular Articles</h2>
           <div className="space-y-1">
-            {trending?.slice(0, 5).map((a, i) => (
+            {trending?.slice(0, 3).map((a, i) => (
               <div key={a.id} className="flex gap-2 py-2 border-b border-dark-100 last:border-0">
                 <span className="text-2xl font-display font-bold text-dark-200 leading-none w-6 shrink-0">
                   {i + 1}
@@ -62,7 +62,7 @@ export default function Sidebar({ side }: SidebarProps) {
       <div className="card p-4">
         <h2 className="section-title mb-4">Breaking News</h2>
         <div className="space-y-1">
-          {breaking?.map((a) => <NewsCard key={a.id} article={a} variant="mini" />)}
+          {breaking?.slice(0, 3).map((a) => <NewsCard key={a.id} article={a} variant="mini" />)}
         </div>
       </div>
 
@@ -71,7 +71,7 @@ export default function Sidebar({ side }: SidebarProps) {
       <div className="card p-4">
         <h2 className="section-title mb-4">Trending Now</h2>
         <div className="space-y-1">
-          {trending?.slice(0, 5).map((a) => (
+          {trending?.slice(0, 3).map((a) => (
             <NewsCard key={a.id} article={a} variant="horizontal" />
           ))}
         </div>
