@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
@@ -8,7 +8,7 @@ import {
 } from 'react-icons/fi';
 import { matchesApi, articlesApi, analyticsApi } from '../services/api';
 import { Match, Article, PaginatedResponse } from '../types';
-import { formatMatchTime, getImageUrl, matchStatusLabel, matchStatusColor } from '../utils';
+import { formatMatchTime, getImageUrl, matchStatusLabel, matchStatusColor, formatCountdown } from '../utils';
 import { Loader } from '../components/ui/Loader';
 import NewsCard from '../components/news/NewsCard';
 import AdBlock from '../components/ads/AdBlock';
@@ -80,6 +80,15 @@ export default function MatchChannelsPage() {
   useEffect(() => {
     if (slug) analyticsApi.track(`/matches/${slug}`, document.referrer);
   }, [slug]);
+
+  const isUpcoming = match?.status === 'UPCOMING';
+  const [countdown, setCountdown] = useState('');
+  useEffect(() => {
+    if (!isUpcoming || !match) { setCountdown(''); return; }
+    setCountdown(formatCountdown(match.matchTime));
+    const id = setInterval(() => setCountdown(formatCountdown(match.matchTime)), 1000);
+    return () => clearInterval(id);
+  }, [isUpcoming, match?.matchTime]);
 
   if (isLoading) {
     return (
@@ -171,6 +180,7 @@ export default function MatchChannelsPage() {
                   )}
                   <span className="text-dark-200 text-sm font-medium">{match.tournament.name}</span>
                 </div>
+                
                 <div className="flex items-center gap-3">
                   <span className={`text-sm font-bold px-3 py-1 rounded-full flex items-center gap-1.5 ${statusCls}`}>
                     {isLive && <span className="live-dot" />}
@@ -210,6 +220,11 @@ export default function MatchChannelsPage() {
                           <FiCalendar className="w-4 h-4" />
                           {formatMatchTime(match.matchTime)}
                         </div>
+                        {countdown && (
+                          <div className="mt-2 text-sm font-semibold text-brand-600 text-center">
+                            Starts in {countdown}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

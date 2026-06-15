@@ -8,7 +8,7 @@ export const timeAgo = (date: string) => dayjs(date).fromNow();
 export const formatDate = (date: string) => dayjs(date).format('MMM D, YYYY');
 
 export const formatMatchTime = (date: string) =>
-  dayjs(date).format('ddd, MMM D · HH:mm');
+  dayjs(date).format('ddd, MMM D · hh:mm A');
 
 export const getImageUrl = (path?: string) => {
   if (!path) return '/placeholder-image.jpg';
@@ -40,4 +40,30 @@ export const matchStatusColor: Record<string, string> = {
   FINISHED:  'text-dark-700 bg-dark-200',
   POSTPONED: 'text-yellow-700 bg-yellow-100',
   CANCELLED: 'text-red-700 bg-red-100',
+};
+
+export interface Countdown {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  total: number; // total ms remaining
+}
+
+export const getCountdown = (date: string): Countdown | null => {
+  const total = dayjs(date).diff(dayjs());
+  if (total <= 0) return null;
+  const days    = Math.floor(total / (1000 * 60 * 60 * 24));
+  const hours   = Math.floor((total / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((total / (1000 * 60)) % 60);
+  const seconds = Math.floor((total / 1000) % 60);
+  return { days, hours, minutes, seconds, total };
+};
+
+export const formatCountdown = (date: string): string => {
+  const cd = getCountdown(date);
+  if (!cd) return timeAgo(date);
+  if (cd.days > 0) return `${cd.days}d ${cd.hours}h ${cd.minutes}m`;
+  if (cd.hours > 0) return `${cd.hours}h ${cd.minutes}m ${cd.seconds}s`;
+  return `${cd.minutes}m ${cd.seconds}s`;
 };
