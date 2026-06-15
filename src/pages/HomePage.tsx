@@ -8,7 +8,6 @@ import {
   FiPlayCircle,
   FiWifi,
 } from "react-icons/fi";
-import dayjs from "dayjs";
 import { matchesApi } from "../services/api";
 import { Match } from "../types";
 import Sidebar from "../components/layout/Sidebar";
@@ -89,46 +88,54 @@ function ClosestMatchCard({ match }: { match: Match }) {
     </div>
   );
 
-  const card = (
-    <div className="bg-white border border-dark-200 rounded-xl overflow-hidden mb-4 hover:border-brand-300 hover:shadow-md transition-all">
-      {/* Main match row */}
-      <div className="flex items-center px-4 py-5 gap-3">
-        <TeamBadge
-          logo={match.homeTeam.logo}
-          name={match.homeTeam.name}
-          align="left"
-        />
-
-        {/* Center: time / score + status pill */}
-        <div className="flex flex-col items-center shrink-0 min-w-[110px] text-center gap-1.5">
-          {showScore ? (
-            <span className="text-2xl font-bold text-dark-900 font-mono">
-              {match.homeScore ?? 0} – {match.awayScore ?? 0}
+  const cardInner = (
+    <>
+      {/* LIVE header strip */}
+      {isLive && (
+        <div className="flex items-center justify-between px-4 py-1.5 bg-red-600">
+          <span className="flex items-center gap-1.5 text-white text-xs font-bold tracking-widest uppercase">
+            <span className="live-ripple text-white">
+              <span className="live-ripple-dot" />
             </span>
-          ) : (
-            <span className="text-base font-bold text-dark-700">
-              {/* {dayjs(match.matchTime).format("hh:mm A")} */}
-              <div className="flex items-center gap-1.5 text-sm text-dark-800">
-                <FiCalendar className="w-4 h-4" />
-                {formatMatchTime(match.matchTime)}
-              </div>
+            Live Now
+          </span>
+          {match.minute != null && (
+            <span className="text-white text-xs font-mono font-bold opacity-90">
+              {match.minute}'
             </span>
           )}
-          <span
-            className={`text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap ${statusCls}`}
-          >
-            {isLive && (
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-white mr-1 animate-pulse align-middle" />
-            )}
-            {statusText}
-          </span>
+        </div>
+      )}
+
+      {/* Main match row */}
+      <div className="flex items-center px-4 py-5 gap-3">
+        <TeamBadge logo={match.homeTeam.logo} name={match.homeTeam.name} align="left" />
+
+        {/* Center: score / time + status */}
+        <div className="flex flex-col items-center shrink-0 min-w-[110px] text-center gap-1.5">
+          {showScore ? (
+            <span className={`font-bold text-dark-900 font-mono ${isLive ? 'text-3xl live-score' : 'text-2xl'}`}>
+              {match.homeScore ?? 0}
+              <span className={isLive ? 'live-sep mx-1.5 text-red-500' : ' mx-1.5 text-dark-400'}>–</span>
+              {match.awayScore ?? 0}
+            </span>
+          ) : (
+            <div className="flex items-center gap-1.5 text-sm text-dark-800">
+              <FiCalendar className="w-4 h-4" />
+              {formatMatchTime(match.matchTime)}
+            </div>
+          )}
+          {!isLive && (
+            <span className={`text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1.5 ${statusCls}`}>
+              {statusText}
+            </span>
+          )}
+          {/* {isUpcoming && countdown && (
+            <p className="text-xs text-brand-600 font-semibold">Starts in {countdown}</p>
+          )} */}
         </div>
 
-        <TeamBadge
-          logo={match.awayTeam.logo}
-          name={match.awayTeam.name}
-          align="right"
-        />
+        <TeamBadge logo={match.awayTeam.logo} name={match.awayTeam.name} align="right" />
       </div>
 
       {/* Footer: tournament + channel */}
@@ -136,17 +143,24 @@ function ClosestMatchCard({ match }: { match: Match }) {
         <span className="text-xs text-dark-500 truncate">
           International · {match.tournament.name}
         </span>
-
         {firstChannel ? (
-          <span className="text-xs font-semibold text-brand-600 shrink-0">
-            {firstChannel.name}
-          </span>
+          <span className="text-xs font-semibold text-brand-600 shrink-0">{firstChannel.name}</span>
         ) : (
           <span className="text-xs text-dark-400 flex items-center gap-1 shrink-0">
             <FiPlayCircle className="w-3 h-3" /> Watch
           </span>
         )}
       </div>
+    </>
+  );
+
+  const card = isLive ? (
+    <div className="live-card-border">
+      <div className="live-card-inner">{cardInner}</div>
+    </div>
+  ) : (
+    <div className="bg-white border border-dark-200 rounded-xl overflow-hidden mb-4 hover:border-brand-300 hover:shadow-md transition-all">
+      {cardInner}
     </div>
   );
 

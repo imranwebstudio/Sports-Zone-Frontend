@@ -89,3 +89,94 @@
   animation: pulse-live 1.5s ease-in-out infinite;
   display: inline-block;
 }
+
+/* ── Live match card animations ─────────────────────────────────────────── */
+
+/* Flowing gradient border + pulsing glow */
+@keyframes border-flow {
+  0%   { background-position: 0%   50%; }
+  100% { background-position: 200% 50%; }
+}
+@keyframes card-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 8px  2px rgba(239,68,68,0.45),
+      0 0 20px 4px rgba(239,68,68,0.20),
+      0 4px 16px    rgba(0,0,0,0.08);
+  }
+  50% {
+    box-shadow:
+      0 0 18px 4px  rgba(239,68,68,0.75),
+      0 0 40px 10px rgba(249,115,22,0.35),
+      0 4px 24px    rgba(0,0,0,0.10);
+  }
+}
+.live-card-border {
+  padding: 2px;
+  border-radius: 13px;
+  background: linear-gradient(90deg, #ef4444, #f97316, #fbbf24, #f97316, #ef4444);
+  background-size: 200% 100%;
+  animation: border-flow 2s linear infinite, card-glow 2s ease-in-out infinite;
+  margin-bottom: 1rem;
+}
+
+/* Inner card: pulses from white to very faint red */
+@keyframes card-bg-pulse {
+  0%, 100% { background-color: #ffffff; }
+  50%       { background-color: #fff5f5; }
+}
+.live-card-inner {
+  border-radius: 11px;
+  overflow: hidden;
+  animation: card-bg-pulse 2.5s ease-in-out infinite;
+}
+
+/* Score: gently scales + red glow */
+@keyframes score-alive {
+  0%, 100% { transform: scale(1);    text-shadow: none; }
+  50%       { transform: scale(1.06); text-shadow: 0 0 16px rgba(239,68,68,0.4); }
+}
+.live-score {
+  display: inline-block;
+  animation: score-alive 2.5s ease-in-out infinite;
+}
+
+/* Ripple rings around the live dot */
+@keyframes live-ping {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  80%  { transform: scale(2.8); opacity: 0;   }
+  100% { transform: scale(2.8); opacity: 0;   }
+}
+.live-ripple {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 10px;
+}
+.live-ripple::before,
+.live-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  animation: live-ping 1.8s ease-out infinite;
+}
+.live-ripple::after { animation-delay: 0.65s; }
+.live-ripple-dot {
+  width: 8px;
+  height: 8px;
+  background: currentColor;
+  border-radius: 50%;
+  position: relative;
+  z-index: 1;
+}
+
+/* Blinking colon / separator in live score */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+.live-sep { animation: blink 1s step-start infinite; }
