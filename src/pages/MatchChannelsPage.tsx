@@ -27,19 +27,18 @@ function eventIcon(type: string, detail: string) {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 const TeamDisplay = ({ team }: { team: Match['homeTeam'] }) => (
-  <div className="flex flex-col items-center gap-3">
-    <div className="w-20 h-20 rounded-full bg-dark-100 border-4 border-dark-200 overflow-hidden flex items-center justify-center">
+  <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+    <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-dark-100 border-4 border-dark-200 overflow-hidden flex items-center justify-center shrink-0">
       {team.logo ? (
-        <img src={getImageUrl(team.logo)} alt={team.name} className="w-16 h-16 object-contain" />
+        <img src={getImageUrl(team.logo)} alt={team.name} className="w-10 h-10 sm:w-16 sm:h-16 object-contain" />
       ) : (
-        <span className="text-3xl font-display font-bold text-dark-300">
+        <span className="text-xl sm:text-3xl font-display font-bold text-dark-300">
           {team.name.slice(0, 2).toUpperCase()}
         </span>
       )}
     </div>
-    <div className="text-center">
-      <p className="font-display font-bold text-xl text-dark-900">{team.name}</p>
-      {team.country && <p className="text-sm text-dark-400">{team.country}</p>}
+    <div className="text-center w-full px-1">
+      <p className="font-display font-bold text-sm sm:text-xl text-dark-900 leading-tight break-words">{team.name}</p>
     </div>
   </div>
 );
@@ -196,32 +195,32 @@ export default function MatchChannelsPage() {
               </div>
 
               {/* Score section */}
-              <div className="p-8">
-                <div className="flex items-center justify-between gap-4">
+              <div className="p-4 sm:p-8">
+                <div className="flex items-center gap-2 sm:gap-4">
                   <TeamDisplay team={match.homeTeam} />
 
-                  <div className="text-center flex-shrink-0">
+                  <div className="text-center shrink-0 px-1 sm:px-3">
                     {(isLive || match.status === 'FINISHED') && hasScore ? (
                       <>
-                        <div className="font-display font-bold text-5xl text-dark-900 mb-1 tabular-nums">
+                        <div className="font-display font-bold text-3xl sm:text-5xl text-dark-900 mb-1 tabular-nums whitespace-nowrap">
                           {displayScore.home} <span className="text-dark-300">—</span> {displayScore.away}
                         </div>
                         {displayMinute != null && isLive && (
                           <div className="text-red-600 font-bold text-sm">{displayMinute}'</div>
                         )}
                         {match.status === 'FINISHED' && (
-                          <div className="text-sm text-dark-500 font-normal mt-1">Full Time</div>
+                          <div className="text-xs sm:text-sm text-dark-500 font-normal mt-1">Full Time</div>
                         )}
                       </>
                     ) : (
                       <div>
-                        <div className="text-2xl font-display font-bold text-dark-300 mb-2">VS</div>
-                        <div className="flex items-center gap-1.5 text-sm text-dark-500">
-                          <FiCalendar className="w-4 h-4" />
-                          {formatMatchTime(match.matchTime)}
+                        <div className="text-lg sm:text-2xl font-display font-bold text-dark-300 mb-1 sm:mb-2">VS</div>
+                        <div className="flex flex-col items-center gap-0.5 text-xs sm:text-sm text-dark-500">
+                          <FiCalendar className="w-3.5 h-3.5" />
+                          <span className="whitespace-nowrap">{formatMatchTime(match.matchTime)}</span>
                         </div>
                         {countdown && (
-                          <div className="mt-2 text-sm font-semibold text-brand-600 text-center">
+                          <div className="mt-2 text-xs sm:text-sm font-semibold text-brand-600 text-center whitespace-nowrap">
                             Starts in {countdown}
                           </div>
                         )}
