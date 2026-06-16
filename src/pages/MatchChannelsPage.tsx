@@ -172,7 +172,7 @@ export default function MatchChannelsPage() {
               )}
 
               {/* Tournament bar */}
-              <div className="bg-dark-800 px-6 py-3 flex items-center justify-between">
+              <div className="bg-dark-800 px-2 md:px-6 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {match.tournament.logo && (
                     <img src={getImageUrl(match.tournament.logo)} alt={match.tournament.name} className="w-5 h-5 object-contain" />
@@ -180,7 +180,7 @@ export default function MatchChannelsPage() {
                   <span className="text-dark-200 text-sm font-medium">{match.tournament.name}</span>
                 </div>
                 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1 md:gap-3 flex-col-reverse">
                   <span className={`text-sm font-bold px-3 py-1 rounded-full flex items-center gap-1.5 ${statusCls}`}>
                     {isLive && <span className="live-dot" />}
                     {liveData ? liveData.statusLong : matchStatusLabel[match.status]}
